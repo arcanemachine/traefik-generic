@@ -1,0 +1,46 @@
+#!/bin/sh
+
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+	echo "Generate a .env file template. You can override the default environment
+variables as needed.
+
+To generate the default template, pass the '--default' flag as the first
+positional argument.
+
+Available variable(s):
+
+- TRAEFIK_HOST: The hostname that identifies your Traefik dashboard
+  - default: 'localhost'
+- USE_PODMAN: Indirectly sets the DOCKER_HOST environment variable:
+  - Parameters:
+    - If this variable is falsy, DOCKER_HOST will not be set.
+    - If this variable is truthy, DOCKER_HOST will be set to
+      '\$(podman info --format '{{.Host.RemoteSocket.Path}}')'
+
+NOTE: "
+	exit 0
+fi
+
+# traefik_host
+traefik_host="${TRAEFIK_HOST:-}"
+if [ "$1" = "--default" ]; then
+	# use default value
+	traefik_host="TRAEFIK_HOST=\"localhost\""
+elif [ "$traefik_host" = "" ]; then
+	# value is empty. exit with error
+	echo "\033[91mError: TRAEFIK_HOST cannot be empty. Aborting...\033[39m"
+	exit 1
+else
+	# use custom value
+	traefik_host="TRAEFIK_HOST=\"${traefik_host}\""
+fi
+
+# docker_host_path (only set if using podman)
+if [ "$USE_PODMAN" != "1" ] || [ "$1" = "--default" ]; then
+	maybe_docker_host_path=""
+else
+	maybe_docker_host_path="
+DOCKER_HOST=\"$(podman info --format '{{.Host.RemoteSocket.Path}}')\""
+fi
+
+echo "${traefik_host}${maybe_docker_host_path}"

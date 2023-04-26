@@ -1,0 +1,54 @@
+#!/bin/sh
+
+# navigate to templates directory
+cd "$(dirname "$0")" || exit 1
+
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+	echo "Generate a startup script for a 'dev' or 'prod' environment."
+	exit 0
+fi
+
+# get environment: 'dev' or 'prod'
+if [ "$1" = "dev" ]; then
+	env_choice="dev"
+elif [ "$1" = "prod" ]; then
+	env_choice="prod"
+else
+	echo "First positional argument must be one of: dev, prod"
+	exit 1
+fi
+
+# check for existing .env values
+if [ -f ../.env ]; then
+	# source dotenv
+	set -o allexport
+	# shellcheck disable=SC1091
+	. ../.env
+	set +o allexport
+else
+	echo "Could not find existing environment at '.env'. This is not an error."
+fi
+
+# create initial boilerplate
+boilerplate="#!/bin/sh
+
+# navigate to project root directory
+cd \$(dirname \"\$0\")" || exit
+
+# environment-specific values
+if [ "$USE_PODMAN" = 1 ]; then
+	# podman
+	container_environment_message="This environment has been configured for use with Podman. To use this service with Docker, re-run the setup script (or use the start.sh generator script) without setting the environment variable 'USE_PODMAN=1'."
+	startup_command="docker-compose -H unix:${DOCKER_HOST}"
+else
+	# docker
+	container_environment_message="This environment has been configured for use with Docker. To use this service with Podman, re-run the setup script (or use the start.sh generator script) with the environment variable 'USE_PODMAN=1'."
+	startup_command="docker compose"
+fi
+
+# print result
+echo "$boilerplate
+
+echo \"$container_environment_message\"
+
+exec $startup_command -f compose.yaml -f compose.${env_choice}.yaml up \"\$@\""

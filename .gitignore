@@ -1,0 +1,16 @@
+# misc
+*.tmp
+
+# vim
+*.sw?
+Session*.vim
+
+# generated files
+/start.sh
+/etc/traefik.yml
+
+# environment
+.env
+
+# ssl certificates
+letsencrypt/
