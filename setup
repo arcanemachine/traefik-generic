@@ -78,7 +78,7 @@ if [ -f ".env" ]; then
 	. ./.env
 	set +o allexport
 else
-	echo "Could not find existing environment at '.env'. This is not an error."
+	echo "Could not find existing environment at '.env'. A new one will be created."
 fi
 
 # docker/podman config (and notification)
