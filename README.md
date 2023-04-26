@@ -129,8 +129,7 @@ In 'dev' mode, the dashboard is unsecured by default.
 In 'prod' mode, the dashboard is secured with the default username `admin` and a randomly-generated password.
 
 - In order to access the dashboard, you will need to change the password (or disable authentication entirely... which you shouldn't do).
-
-  - To change the password, you will need to [generate a new password hash](#set-custom-authentication-credentials)
+  - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
 
 #### Set Custom Authentication Credentials
 
