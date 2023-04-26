@@ -1,4 +1,4 @@
-# traefik-generic
+# [traefik-generic](https://github.com/arcanemachine/traefik-generic)
 
 A generic Traefik container setup. Designed to be reasonably secure out of the box, while being easily pluggable for both `dev` and `prod` environments.
 
