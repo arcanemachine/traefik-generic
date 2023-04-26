@@ -21,7 +21,7 @@ There are 2 ways to configure this project:
 
 #### Using the Automated Setup Wizard
 
-Run the automated script located in `./scripts/setup` and follow the steps in the setup wizard.
+TLDR: Run the automated script located in `./scripts/setup` and follow the steps in the setup wizard. Then, run the `./start.sh` script to start the container service.
 
 The wizard performs the following steps:
 
