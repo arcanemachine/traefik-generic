@@ -37,7 +37,7 @@ The wizard performs the following steps:
     - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
       - default: `localhost`
     - `LETS_ENCRYPT_EMAIL`: Your email address (used to receive important emails from Let's Encrypt)
-      - This variable is only configured in 'prod' mode. It is used to setup the `./etc/traefik.yml` file. It is not saved after running the setup script.
+      - This variable is only configured in `prod` mode. It is used to setup the `./etc/traefik.yml` file. It is not saved after running the setup script.
       - default: `letsencrypt@example.com`
     - `DOCKER_HOST`: The path to your Docker/Podman socket.
       - This variable is only configured if the environment variable `USE_PODMAN=1` is enabled before running the setup wizard.
@@ -91,15 +91,15 @@ All commands should be run from the project root directory.
   - e.g. for Docker: `docker compose -f compose.yaml -f compose.[dev|prod].yaml up`
   - e.g. for Podman: `docker-compose -H unix:/$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.[dev|prod].yaml up`
 
-### Differences Between 'dev' and 'prod' Configuration
+### Differences Between `dev` and `prod` Configuration
 
-By default, the 'dev' configuration:
+By default, the `dev` configuration:
 
 - Does not require authentication to view the dashboard
 - Does not expose port 443 (HTTPS)
 - Does not enable SSL certificates via Let's Encrypt
 
-By default, the 'prod' configuration:
+By default, the `prod` configuration:
 
 - Requires authentication to view the dashboard
 - Exposes port 443 (HTTPS)
@@ -115,18 +115,18 @@ The location of the dashboard can be changed by editing the `compose.[dev|prod].
 
 ### Securing the Dashboard
 
-#### In 'dev' Mode
+#### In `dev` Mode
 
-In 'dev' mode, the dashboard is unsecured by default.
+In `dev` mode, the dashboard is unsecured by default.
 
 - To enable basic authentication, uncomment lines 25 and 41 in the `compose.dev.yaml` files.
   - The default credentials are `admin` and `password`.
     - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
   - Make sure you change the credentials (or disable the dashboard in `./etc/traefik.yml`) if this service will be accessible from the Internet!
 
-#### In 'prod' Mode
+#### In `prod` Mode
 
-In 'prod' mode, the dashboard is secured with the default username `admin` and a randomly-generated password.
+In `prod` mode, the dashboard is secured with the default username `admin` and a randomly-generated password.
 
 - In order to access the dashboard, you will need to change the password (or disable authentication entirely... which you shouldn't do).
   - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
@@ -158,12 +158,12 @@ If you used the setup wizard, a `./start.sh` script was generated. You can use t
 
 #### The Manual Way
 
-In 'dev' mode:
+In `dev` mode:
 
 - docker: `docker compose -f docker-compose.yaml -f docker-compose.dev.yml up`
 - podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.dev.yaml up`
 
-In 'prod' mode:
+In `prod` mode:
 
 - docker: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
 - podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.prod.yaml up`
