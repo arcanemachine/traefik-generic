@@ -6,7 +6,7 @@ A generic Traefik container setup. Designed to be reasonably secure out of the b
 
 - Easy setup with the automated setup wizard (located at `./setup`).
 - Works with Docker and Podman.
-  - Works with Docker by default, but can be configured to work with Podman.
+  - Works with Docker by default, but can be configured to work with Podman instead.
 - Supports Let's Encrypt certificates (when using the `prod` configuration)
   - Traefik automatically manages certificate renewal when using Let's Encrypt. :)
 
@@ -21,7 +21,14 @@ There are 2 ways to configure this project:
 
 #### Using the Automated Setup Wizard
 
-TLDR: Run the automated script located in `./scripts/setup` and follow the steps in the setup wizard. Then, run the `./start.sh` script to start the container service.
+##### Quick Start
+
+- Run the automated script located in `./scripts/setup` and follow the steps in the setup wizard.
+- Then, run the `./start.sh` script to start the container service.
+- To overwrite an existing configuration, use the `--force` flag when running the script.
+- To use with Podman, set `USE_PODMAN=1` before running the script (e.g. `USE_PODMAN=1 ./setup`)
+
+##### What Does the Setup Wizard Do?
 
 The wizard performs the following steps:
 
@@ -36,24 +43,28 @@ The wizard performs the following steps:
       - This variable is only configured if the environment variable `USE_PODMAN=1` is enabled before running the setup wizard.
       - default: N/A
 
+##### What Files Does The Setup Wizard Create?
+
 The wizard generates 3 files:
 
 - `./.env` - The local environment (automatically detected by the Compose file)
 - `./etc/traefik.yml` - Traefik configuration file
 - `./start.sh` - A script that starts the container service
 
-To enable use with Podman:
+##### How To Use Podman Instead of Docker?
 
-- Set the environment variable `USE_PODMAN=1` before running the script.
-  - NOTE: Requires `docker-compose` or `podman-compose` to be installed in order for Podman to work with Compose files
-  - `docker-compose` works better than `podman-compose` in my experience.
-  - To use `docker-compose` with Podman, at least one of the following conditions must be true:
-    - The environment variable `DOCKER_HOST` must be set to the path of your Podman socket.
-    - Or, `docker-compose` must be run with the flag `-H unix:/path/to/your/podman.sock`
-  - The setup wizard will attempt to determine the path to your Podman socket and save the `DOCKER_HOST` in the `./.env` file.
-    - The setup wizard uses this command to determine the location of the Podman socket:
-      - `podman info --format '{{.Host.RemoteSocket.Path}}'`
-    - If the wizard does not configure the `DOCKER_HOST` environment variable correctly, you will need to configure the `./.env` file manually in order for Podman to work with `docker-compose`.
+- Use `pip` (The Python package installer) to install `docker-compose` in order for Podman to work with Compose files.
+- Run `USE_PODMAN=1 ./setup`
+  - To overwrite an existing config, run `USE_PODMAN=1 ./setup --force`
+
+###### Why Use `docker-compose` Instead of `podman-compose`?
+
+`docker-compose` works better than `podman-compose` in my experience:
+
+- It has a better UI.
+- It works better with environment variables than `podman-compose` (at the time of this writing).
+
+If you want to, you can use `podman-compose`, but you'll have to modify the startup command used in `start.sh`.
 
 #### Manual Configuration
 
@@ -66,8 +77,7 @@ All commands should be run from the project root directory.
   - Supported environment variables:
     - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
       - example: `TRAEFIK_HOST="localhost"`
-    - `DOCKER_HOST`: The path to your Docker/Podman socket.
-      - This environment variable is not required when using Docker. It only needs to be set if using Podman.
+    - `DOCKER_HOST`: The path to your Podman socket. (Not required if using Docker)
       - example: `DOCKER_HOST="/var/run/docker.sock"`
         - If not set, the `compose.yaml` file will assume the socket is located in `/var/run/docker.sock`
           - This is the standard location of the Docker socket file.
@@ -78,8 +88,8 @@ All commands should be run from the project root directory.
     - You must specify `dev` or `prod` as the first positional argument.
     - The output of this command can be piped to `./etc/traefik.yml`.
 - Start the containers with the desired environment:
-  - e.g. for Docker: `docker compose -f compose.yaml -f compose.dev.yaml up`
-  - e.g. for Podman: `docker-compose -H unix:/$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.prod.yaml up`
+  - e.g. for Docker: `docker compose -f compose.yaml -f compose.[dev|prod].yaml up`
+  - e.g. for Podman: `docker-compose -H unix:/$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.[dev|prod].yaml up`
 
 ### Differences Between 'dev' and 'prod' Configuration
 
@@ -141,7 +151,7 @@ In 'prod' mode, the dashboard is secured with the default username `admin` and a
     - YAML uses the `$` symbol as an escape character.
     - For this reason, you must convert each `$` to `$$` (2 dollar sign symbols instead of 1) when copying your hashed password into the YAML config.
 
-### Start the Container
+### Start the Container Service
 
 #### The Easy Way
 
@@ -158,8 +168,6 @@ In 'prod' mode:
 
 - docker: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
 - podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.prod.yaml up`
-
-### Access the Dashboard
 
 ## Troubleshooting
 
