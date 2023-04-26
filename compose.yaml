@@ -3,6 +3,8 @@ services:
   traefik:
     image: "docker.io/traefik:v2.10"
     container_name: "traefik"
+    environment:
+      TRAEFIK_HOST: "${TRAEFIK_HOST:?}"
     volumes:
       - "${DOCKER_HOST:-/var/run/docker.sock}:/var/run/docker.sock:ro"
       - "./etc:/etc/traefik"
