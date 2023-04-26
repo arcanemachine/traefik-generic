@@ -78,7 +78,7 @@ All commands should be run from the project root directory.
     - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
       - example: `TRAEFIK_HOST="localhost"`
     - `DOCKER_HOST`: The path to your Podman socket. (Not required if using Docker)
-      - example: `DOCKER_HOST="/var/run/docker.sock"`
+      - example: `DOCKER_HOST="/var/run/user/1000/podman/podman.sock"`
         - If not set, the `compose.yaml` file will assume the socket is located in `/var/run/docker.sock`
           - This is the standard location of the Docker socket file.
   - A sample config can be created by running `./templates/dotenv.GENERATOR --default`
