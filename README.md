@@ -111,7 +111,7 @@ By default, the dashboard is accessible from `http://monitor.$TRAEFIK_HOST/`.
 
 - e.g. `http://monitor.localhost/`
 
-The location of the dashboard can be changed by editing the `compose.*.yaml` file for your environment.
+The location of the dashboard can be changed by editing the `compose.[dev|prod].yaml` file for your environment.
 
 ### Securing the Dashboard
 
