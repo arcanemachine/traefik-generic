@@ -23,6 +23,10 @@ if [ "$1" != "dev" ] && [ "$1" != "prod" ]; then
 elif [ "$1" = "dev" ]; then
 
 	echo "---
+global:
+  sendAnonymousUsage: false
+  checkNewVersion: false
+
 log:
   level: \"DEBUG\"
 
@@ -54,6 +58,10 @@ then
 	fi
 
 	echo "---
+global:
+  sendAnonymousUsage: false
+  checkNewVersion: false
+
 log:
   level: \"DEBUG\"
 
