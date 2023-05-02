@@ -7,7 +7,7 @@ services:
       TRAEFIK_HOST: "${TRAEFIK_HOST:?}"
     volumes:
       - "${DOCKER_HOST:-/var/run/docker.sock}:/var/run/docker.sock:ro"
-      - "./etc:/etc/traefik"
+      - "./volumes/etc:/etc/traefik"
     networks:
       - "traefik-global-proxy"
     ports:

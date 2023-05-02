@@ -4,7 +4,7 @@ services:
     ports:
       - "443:443"
     volumes:
-      - "./letsencrypt:/letsencrypt"
+      - "./volumes/letsencrypt:/letsencrypt"
     labels:
       - "traefik.http.routers.traefik.rule=Host(`monitor.${TRAEFIK_HOST:?}`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
