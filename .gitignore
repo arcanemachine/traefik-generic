@@ -7,7 +7,7 @@ Session*.vim
 
 # generated files
 /start.sh
-/etc/traefik.yml
+/volumes/etc/traefik.yml
 
 # environment
 .env
