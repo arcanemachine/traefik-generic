@@ -3,7 +3,7 @@
 
 # container volumes
 /volumes/
-!/volumes/etc/traefik.yml
+!/volumes/etc/middleware.yml
 
 # generated files
 /start.sh
