@@ -1,16 +1,18 @@
 # misc
 *.tmp
 
-# vim
-*.sw?
-Session*.vim
+# container volumes
+/volumes/
+!/volumes/etc/traefik.yml
 
 # generated files
 /start.sh
-/volumes/etc/traefik.yml
 
 # environment
 .env
 
 # ssl certificates
-letsencrypt/
+
+# vim
+*.sw?
+Session*.vim
