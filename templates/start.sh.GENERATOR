@@ -51,4 +51,4 @@ echo "$boilerplate
 
 echo \"$container_environment_message\"
 
-exec $startup_command -f compose.yaml -f compose.${env_choice}.yaml up \"\$@\""
+exec $startup_command -f compose.yaml -f compose.config-${env_choice}.yaml up \"\$@\""

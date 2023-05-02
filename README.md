@@ -88,8 +88,8 @@ All commands should be run from the project root directory.
     - You must specify `local` or `remote` as the first positional argument.
     - The output of this command can be piped to `./etc/traefik.yml`.
 - Start the containers with the desired environment:
-  - e.g. for Docker: `docker compose -f compose.yaml -f compose.[local|remote].yaml up`
-  - e.g. for Podman: `docker-compose -H unix:/$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.[local|remote].yaml up`
+  - Docker: `docker compose -f compose.yaml -f compose.config-[local|remote].yaml up`
+  - Podman: `podman-compose -f compose.yaml -f compose.config-[local|remote].yaml up`
 
 ### Differences Between `local` and `remote` Configuration
 
@@ -119,7 +119,7 @@ By default, the dashboard is accessible from `http://monitor.$TRAEFIK_HOST/`.
 
 - e.g. `http://monitor.localhost/`
 
-The location of the dashboard can be changed by editing the `compose.[local|remote].yaml` file for your environment.
+The location of the dashboard can be changed by editing the `compose.config-[local|remote].yaml` file for your environment.
 
 ### Securing the Dashboard
 
@@ -127,7 +127,7 @@ The location of the dashboard can be changed by editing the `compose.[local|remo
 
 In `local` mode, the dashboard is unsecured by default.
 
-- To enable basic authentication, uncomment lines 25 and 41 in the `compose.local.yaml` files.
+- To enable basic authentication, uncomment lines 25 and 41 in the `compose.config-local.yaml` file.
   - The default credentials are `admin` and `password`.
     - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
   - Make sure you change the credentials (or disable the dashboard in `./etc/traefik.yml`) if this service will be accessible from the Internet!
@@ -142,7 +142,7 @@ In `remote` mode, the dashboard is secured with the default username `admin` and
 #### Set Custom Authentication Credentials
 
 - Ensure that the 'auth' middleware is enabled for your dashboard's router.
-  - This is done in the `traefik` -> `services` -> `labels` section of your environment-specific compose file (i.e. `compose.local.yaml` or `compose.remote.yaml`).
+  - This is done in the `traefik` -> `services` -> `labels` section of your environment-specific compose file (i.e. `compose.config-local.yaml` or `compose.config-remote.yaml`).
     - Example: `- traefik.http.routers.traefik.middlewares=auth`
 - Create a hash of your password (a plaintext password will not work!):
   - Use the interactive shell command:
@@ -150,7 +150,7 @@ In `remote` mode, the dashboard is secured with the default username `admin` and
   - Make sure you
     - The password will not work unless it is hashed.
     - Also, it is insecure to store a plaintext password in your repo.
-- Add your authentication credentials your environment-specific compose file (i.e. `compose.local.yaml` or `compose.remote.yaml`):
+- Add your authentication credentials your environment-specific compose file (i.e. `compose.config-local.yaml` or `compose.config-remote.yaml`):
   - The label will contain a username (e.g. `your_username`) and the hashed password you just generated in the previous step.
   - The label should be placed in the `traefik` -> `services` -> `labels` section of your environment-specific compose file.
     - e.g. `- "traefik.http.middlewares.auth.basicauth.users=your_username:$$2b$$05$$v2kiZzxQVEouDNeILmzUTeJBE2ScPBJgfKagbLQSDD3fqJtg6.6VW"`
@@ -168,13 +168,13 @@ If you used the setup wizard, a `./start.sh` script was generated. You can use t
 
 In `local` mode:
 
-- docker: `docker compose -f docker-compose.yaml -f docker-compose.local.yml up`
-- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.local.yaml up`
+- docker: `docker compose -f compose.yaml -f compose.config-local.yaml up`
+- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.config-local.yaml up`
 
 In `remote` mode:
 
-- docker: `docker-compose -f docker-compose.yml -f docker-compose.remote.yml up`
-- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.remote.yaml up`
+- docker: `docker-compose -f compose.yaml -f compose.remote.yaml up`
+- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.config-remote.yaml up`
 
 ## Troubleshooting
 

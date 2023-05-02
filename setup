@@ -2,7 +2,9 @@
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 	echo "A one-stop script to set up the environment for this project. It generates 4 files:
-  - './.env' - The local environment (automatically detected by the Compose file)
+  - './.env' - The local environment
+    - The '.env' file should be automatically detected in the Compose file.
+      - If not, add it in the Compose file ('env-file') or in the CLI command: '--env-file .env'
   - './etc/traefik.yml' - Traefik configuration file
   - './start.sh' - A script that starts the container service
 
