@@ -1,11 +1,11 @@
 #!/bin/sh
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-	echo "Generate a 'traefik.yml' file for a 'dev' or 'prod' environment.
+	echo "Generate a 'traefik.yml' file for a 'local' or 'remote' environment.
 
 Configuration:
-  - The 'dev' environment has no configuration options.
-  - To configure the 'prod' environment:
+  - The 'local' environment has no configuration options.
+  - To configure the 'remote' environment:
     - To generate the default template, pass the '--default' flag as the first positional argument.
     - Available variable(s):
       - LETS_ENCRYPT_EMAIL: Your email address (used to receive important emails from Let's Encrypt)
@@ -14,13 +14,13 @@ Configuration:
 	exit
 fi
 
-if [ "$1" != "dev" ] && [ "$1" != "prod" ]; then
+if [ "$1" != "local" ] && [ "$1" != "remote" ]; then
 
 	# show error message and exit
-	echo "First positional argument must be one of: dev, prod"
+	echo "First positional argument must be one of: local, remote"
 	exit 1
 
-elif [ "$1" = "dev" ]; then
+elif [ "$1" = "local" ]; then
 
 	echo "---
 global:
@@ -48,7 +48,7 @@ pilot:
   dashboard: false"
 
 elif
-	[ "$1" = "prod" ]
+	[ "$1" = "remote" ]
 then
 
 	# lets_encrypt_email

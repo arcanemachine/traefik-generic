@@ -4,17 +4,17 @@
 cd "$(dirname "$0")" || exit 1
 
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-	echo "Generate a startup script for a 'dev' or 'prod' environment."
+	echo "Generate a startup script for a 'local' or 'remote' environment."
 	exit 0
 fi
 
-# get environment: 'dev' or 'prod'
-if [ "$1" = "dev" ]; then
-	env_choice="dev"
-elif [ "$1" = "prod" ]; then
-	env_choice="prod"
+# get environment: 'local' or 'remote'
+if [ "$1" = "local" ]; then
+	env_choice="local"
+elif [ "$1" = "remote" ]; then
+	env_choice="remote"
 else
-	echo "First positional argument must be one of: dev, prod"
+	echo "First positional argument must be one of: local, remote"
 	exit 1
 fi
 

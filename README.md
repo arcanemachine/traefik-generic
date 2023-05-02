@@ -1,13 +1,13 @@
 # [traefik-generic](https://github.com/arcanemachine/traefik-generic)
 
-A generic Traefik container setup. Designed to be reasonably secure out of the box, while being easily pluggable for both `dev` and `prod` environments.
+A generic Traefik container setup. Designed to be reasonably secure out of the box, while being easily pluggable for both `local` and `remote` environments.
 
 ## Features
 
 - Easy setup with the automated setup wizard (located at `./setup`).
 - Works with Docker and Podman.
   - Works with Docker by default, but can be configured to work with Podman instead.
-- Supports Let's Encrypt certificates (when using the `prod` configuration)
+- Supports Let's Encrypt certificates (when using the `remote` configuration)
   - Traefik automatically manages certificate renewal when using Let's Encrypt. :)
 
 ## Usage Instructions
@@ -37,7 +37,7 @@ The wizard performs the following steps:
     - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
       - default: `localhost`
     - `LETS_ENCRYPT_EMAIL`: Your email address (used to receive important emails from Let's Encrypt)
-      - This variable is only configured in `prod` mode. It is used to setup the `./etc/traefik.yml` file. It is not saved after running the setup script.
+      - This variable is only configured in `remote` mode. It is used to setup the `./etc/traefik.yml` file. It is not saved after running the setup script.
       - default: `letsencrypt@example.com`
     - `DOCKER_HOST`: The path to your Docker/Podman socket.
       - This variable is only configured if the environment variable `USE_PODMAN=1` is enabled before running the setup wizard.
@@ -85,24 +85,32 @@ All commands should be run from the project root directory.
     - The output of this command can be piped to `.env`
 - Set up your Traefik configuration in `./etc/traefik.yml`
   - A sample config can be created by running `./templates/traefik.yml.GENERATOR`
-    - You must specify `dev` or `prod` as the first positional argument.
+    - You must specify `local` or `remote` as the first positional argument.
     - The output of this command can be piped to `./etc/traefik.yml`.
 - Start the containers with the desired environment:
-  - e.g. for Docker: `docker compose -f compose.yaml -f compose.[dev|prod].yaml up`
-  - e.g. for Podman: `docker-compose -H unix:/$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.[dev|prod].yaml up`
+  - e.g. for Docker: `docker compose -f compose.yaml -f compose.[local|remote].yaml up`
+  - e.g. for Podman: `docker-compose -H unix:/$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.[local|remote].yaml up`
 
-### Differences Between `dev` and `prod` Configuration
+### Differences Between `local` and `remote` Configuration
 
-By default, the `dev` configuration:
+#### Local
+
+A local environment is an environment which is not exposed directly to the Internet (ie. during development).
+
+By default, the `local` configuration:
 
 - Does not require authentication to view the dashboard
-- Does not expose port 443 (HTTPS)
+- Only exposes port 80 (HTTP)
 - Does not enable SSL certificates via Let's Encrypt
 
-By default, the `prod` configuration:
+#### Remote
+
+A remote environment is an environment which is exposed directly to the Internet (ie. in production).
+
+By default, the `remote` configuration:
 
 - Requires authentication to view the dashboard
-- Exposes port 443 (HTTPS)
+- Exposes ports 80 (HTTP) and 443 (HTTPS)
 - Enables SSL certificates via Let's Encrypt
 
 ### Accessing the Traefik Dashboard
@@ -111,22 +119,22 @@ By default, the dashboard is accessible from `http://monitor.$TRAEFIK_HOST/`.
 
 - e.g. `http://monitor.localhost/`
 
-The location of the dashboard can be changed by editing the `compose.[dev|prod].yaml` file for your environment.
+The location of the dashboard can be changed by editing the `compose.[local|remote].yaml` file for your environment.
 
 ### Securing the Dashboard
 
-#### In `dev` Mode
+#### In `local` Mode
 
-In `dev` mode, the dashboard is unsecured by default.
+In `local` mode, the dashboard is unsecured by default.
 
-- To enable basic authentication, uncomment lines 25 and 41 in the `compose.dev.yaml` files.
+- To enable basic authentication, uncomment lines 25 and 41 in the `compose.local.yaml` files.
   - The default credentials are `admin` and `password`.
     - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
   - Make sure you change the credentials (or disable the dashboard in `./etc/traefik.yml`) if this service will be accessible from the Internet!
 
-#### In `prod` Mode
+#### In `remote` Mode
 
-In `prod` mode, the dashboard is secured with the default username `admin` and a randomly-generated password.
+In `remote` mode, the dashboard is secured with the default username `admin` and a randomly-generated password.
 
 - In order to access the dashboard, you will need to change the password (or disable authentication entirely... which you shouldn't do).
   - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
@@ -134,7 +142,7 @@ In `prod` mode, the dashboard is secured with the default username `admin` and a
 #### Set Custom Authentication Credentials
 
 - Ensure that the 'auth' middleware is enabled for your dashboard's router.
-  - This is done in the `traefik` -> `services` -> `labels` section of your production-specific compose file (i.e. `compose.dev.yaml` or `compose.prod.yaml`).
+  - This is done in the `traefik` -> `services` -> `labels` section of your environment-specific compose file (i.e. `compose.local.yaml` or `compose.remote.yaml`).
     - Example: `- traefik.http.routers.traefik.middlewares=auth`
 - Create a hash of your password (a plaintext password will not work!):
   - Use the interactive shell command:
@@ -142,9 +150,9 @@ In `prod` mode, the dashboard is secured with the default username `admin` and a
   - Make sure you
     - The password will not work unless it is hashed.
     - Also, it is insecure to store a plaintext password in your repo.
-- Add your authentication credentials your production-specific compose file (i.e. `compose.dev.yaml` or `compose.prod.yaml`):
+- Add your authentication credentials your environment-specific compose file (i.e. `compose.local.yaml` or `compose.remote.yaml`):
   - The label will contain a username (e.g. `your_username`) and the hashed password you just generated in the previous step.
-  - The label should be placed in the `traefik` -> `services` -> `labels` section of your production-specific compose file.
+  - The label should be placed in the `traefik` -> `services` -> `labels` section of your environment-specific compose file.
     - e.g. `- "traefik.http.middlewares.auth.basicauth.users=your_username:$$2b$$05$$v2kiZzxQVEouDNeILmzUTeJBE2ScPBJgfKagbLQSDD3fqJtg6.6VW"`
   - Note that the hash contains dollar sign symbols (`$`).
     - YAML uses the `$` symbol as an escape character.
@@ -158,15 +166,15 @@ If you used the setup wizard, a `./start.sh` script was generated. You can use t
 
 #### The Manual Way
 
-In `dev` mode:
+In `local` mode:
 
-- docker: `docker compose -f docker-compose.yaml -f docker-compose.dev.yml up`
-- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.dev.yaml up`
+- docker: `docker compose -f docker-compose.yaml -f docker-compose.local.yml up`
+- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.local.yaml up`
 
-In `prod` mode:
+In `remote` mode:
 
-- docker: `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`
-- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.prod.yaml up`
+- docker: `docker-compose -f docker-compose.yml -f docker-compose.remote.yml up`
+- podman: `docker-compose -H "unix:$(podman info --format '{{.Host.RemoteSocket.Path}}')" -f compose.yaml -f compose.remote.yaml up`
 
 ## Troubleshooting
 

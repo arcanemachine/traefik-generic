@@ -8,14 +8,14 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 
 Accepted Arguments:
   - First positional argument (required): The name of the environment to set up.
-    - Accepts: dev, prod
+    - Accepts: local, remote
   - Second positional argument (optional): Force overwrite existing files.
     - Accepts: -f, --force
 
 Script Mode:
   - To bypass manual entry, set SCRIPT_MODE=1 before running this script and pass the required environment variables manually:
-    'dev' mode: TRAEFIK_HOST
-    'prod' mode: TRAEFIK_HOST, LETS_ENCRYPT_EMAIL
+    'local' mode: TRAEFIK_HOST
+    'remote' mode: TRAEFIK_HOST, LETS_ENCRYPT_EMAIL
 "
 	exit 0
 fi
@@ -30,30 +30,30 @@ default_lets_encrypt_email="letsencrypt@example.com"
 # navigate to project root directory
 cd "$(dirname "$0")" || exit 1
 
-# get environment choice: 'dev' or 'prod'
-if [ "$1" = "dev" ]; then
-	env_choice="dev"
+# get environment choice: 'local' or 'remote'
+if [ "$1" = "local" ]; then
+	env_choice="local"
 
 	# check for required environment variables if using SCRIPT_MODE
 	if [ "$SCRIPT_MODE" = 1 ]; then
 		if [ "${TRAEFIK_HOST:-}" = "" ]; then
-			echo "\033[91mYou are attempting to set up a 'dev' environment in SCRIPT_MODE, but TRAEFIK_HOST is not set. Aborting...\033[39m"
+			echo "\033[91mYou are attempting to set up a 'local' environment in SCRIPT_MODE, but TRAEFIK_HOST is not set. Aborting...\033[39m"
 			exit 1
 		fi
 	fi
 
-elif [ "$1" = "prod" ]; then
-	env_choice="prod"
+elif [ "$1" = "remote" ]; then
+	env_choice="remote"
 
 	# check for required environment variables if using SCRIPT_MODE
 	if [ "$SCRIPT_MODE" = 1 ]; then
 		if [ "${TRAEFIK_HOST:-}" = "" ]; then
-			echo "\033[91mYou are attempting to set up a 'prod' environment in SCRIPT_MODE, but TRAEFIK_HOST is not set. This script will fail.\033[39m"
+			echo "\033[91mYou are attempting to set up a 'remote' environment in SCRIPT_MODE, but TRAEFIK_HOST is not set. This script will fail.\033[39m"
 			will_exit_with_error=1
 		fi
 
 		if [ "${LETS_ENCRYPT_EMAIL:-}" = "" ]; then
-			echo "\033[91mYou are attempting to set up a 'prod' environment in SCRIPT_MODE, but LETS_ENCRYPT_EMAIL is not set. This script will fail.\033[39m"
+			echo "\033[91mYou are attempting to set up a 'remote' environment in SCRIPT_MODE, but LETS_ENCRYPT_EMAIL is not set. This script will fail.\033[39m"
 			will_exit_with_error=1
 		fi
 
@@ -65,7 +65,7 @@ elif [ "$1" = "prod" ]; then
 	fi
 
 else
-	echo "First positional argument must be one of: dev, prod"
+	echo "First positional argument must be one of: local, remote"
 	exit 1
 fi
 
@@ -186,7 +186,7 @@ else
 		# bypass manual entry
 		lets_encrypt_email="${LETS_ENCRYPT_EMAIL:-}"
 
-	elif [ "$env_choice" = "prod" ]; then
+	elif [ "$env_choice" = "remote" ]; then
 
 		lets_encrypt_email=""
 
