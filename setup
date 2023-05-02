@@ -5,7 +5,7 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   - './.env' - The local environment
     - The '.env' file should be automatically detected in the Compose file.
       - If not, add it in the Compose file ('env-file') or in the CLI command: '--env-file .env'
-  - './etc/traefik.yml' - Traefik configuration file
+  - './volumes/etc/traefik.yml' - Traefik configuration file
   - './start.sh' - A script that starts the container service
 
 Accepted Arguments:
@@ -176,10 +176,10 @@ fi
 
 # traefik.yml #
 # check for existing 'traefik.yml' file
-if [ -f "./etc/traefik.yml" ] && [ "$force_mode" != 1 ]; then
+if [ -f "./volumes/etc/traefik.yml" ] && [ "$force_mode" != 1 ]; then
 
 	# show warning and skip 'traefik.yml' file generation
-	echo "\033[93mFile 'etc/traefik.yml' already exists. Delete the file, or enable 'force' mode by passing '-f' or '--force' as the second positional argument. Skipping...\033[39m"
+	echo "\033[93mFile 'volumes/etc/traefik.yml' already exists. Delete the file, or enable 'force' mode by passing '-f' or '--force' as the second positional argument. Skipping...\033[39m"
 
 else
 
@@ -230,8 +230,8 @@ else
 	fi
 
 	# generate 'traefik.yml'
-	echo "\033[96mGenerating file './etc/traefik.yml'...\033[39m"
-	LETS_ENCRYPT_EMAIL="$lets_encrypt_email" ./templates/traefik.yml.GENERATOR "$env_choice" >./etc/traefik.yml
+	echo "\033[96mGenerating file './volumes/etc/traefik.yml'...\033[39m"
+	LETS_ENCRYPT_EMAIL="$lets_encrypt_email" ./templates/traefik.yml.GENERATOR "$env_choice" >./volumes/etc/traefik.yml
 
 fi
 

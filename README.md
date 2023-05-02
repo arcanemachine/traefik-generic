@@ -37,7 +37,7 @@ The wizard performs the following steps:
     - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
       - default: `localhost`
     - `LETS_ENCRYPT_EMAIL`: Your email address (used to receive important emails from Let's Encrypt)
-      - This variable is only configured in `remote` mode. It is used to setup the `./etc/traefik.yml` file. It is not saved after running the setup script.
+      - This variable is only configured in `remote` mode. It is used to setup the `./volumes/etc/traefik.yml` file. It is not saved after running the setup script.
       - default: `letsencrypt@example.com`
     - `DOCKER_HOST`: The path to your Docker/Podman socket.
       - This variable is only configured if the environment variable `USE_PODMAN=1` is enabled before running the setup wizard.
@@ -48,7 +48,7 @@ The wizard performs the following steps:
 The wizard generates 3 files:
 
 - `./.env` - The local environment (automatically detected by the Compose file)
-- `./etc/traefik.yml` - Traefik configuration file
+- `./volumes/etc/traefik.yml` - Traefik configuration file
 - `./start.sh` - A script that starts the container service
 
 ##### How To Use Podman Instead of Docker?
@@ -83,10 +83,10 @@ All commands should be run from the project root directory.
           - This is the standard location of the Docker socket file.
   - A sample config can be created by running `./templates/dotenv.GENERATOR --default`
     - The output of this command can be piped to `.env`
-- Set up your Traefik configuration in `./etc/traefik.yml`
+- Set up your Traefik configuration in `./volumes/etc/traefik.yml`
   - A sample config can be created by running `./templates/traefik.yml.GENERATOR`
     - You must specify `local` or `remote` as the first positional argument.
-    - The output of this command can be piped to `./etc/traefik.yml`.
+    - The output of this command can be piped to `./volumes/etc/traefik.yml`.
 - Start the containers with the desired environment:
   - Docker: `docker compose -f compose.yaml -f compose.config-[local|remote].yaml up`
   - Podman: `podman-compose -f compose.yaml -f compose.config-[local|remote].yaml up`
@@ -130,7 +130,7 @@ In `local` mode, the dashboard is unsecured by default.
 - To enable basic authentication, uncomment lines 25 and 41 in the `compose.config-local.yaml` file.
   - The default credentials are `admin` and `password`.
     - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
-  - Make sure you change the credentials (or disable the dashboard in `./etc/traefik.yml`) if this service will be accessible from the Internet!
+  - Make sure you change the credentials (or disable the dashboard in `./volumes/etc/traefik.yml`) if this service will be accessible from the Internet!
 
 #### In `remote` Mode
 
