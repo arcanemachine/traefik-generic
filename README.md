@@ -4,57 +4,34 @@ A generic Traefik container setup. Designed to be reasonably secure out of the b
 
 ## Features
 
-- Easy setup with the automated setup wizard (located at `./setup`).
+- Get started with a single command: `./start.sh`
 - Works with Docker and Podman.
-  - Works with Docker by default, but can be configured to work with Podman instead.
+  - To use with Podman, pass `--podman` as the third positional argument when running `start.sh`.
 - Supports Let's Encrypt certificates (when using the `remote` configuration)
-  - Traefik automatically manages certificate renewal when using Let's Encrypt. :)
+  - Traefik automatically manages certificate renewal when using Let's Encrypt.
 
 ## Usage Instructions
+
+Before continuing, ensure that `docker-compose` is installed: `pip install docker-compose`
 
 ### Configuration
 
 There are 2 ways to configure this project:
 
-- Using the automated setup wizard
+- `start.sh`
 - Manual configuration
 
-#### Using the Automated Setup Wizard
+#### Use `start.sh`
 
 ##### Quick Start
 
-- Run the automated script located in `./scripts/setup` and follow the steps in the setup wizard.
-- Then, run the `./start.sh` script to start the container service.
-- To overwrite an existing configuration, use the `--force` flag when running the script.
-- To use with Podman, set `USE_PODMAN=1` before running the script (e.g. `USE_PODMAN=1 ./setup`)
-
-##### What Does the Setup Wizard Do?
-
-The wizard performs the following steps:
-
-- Configures the environment:
-  - Sets up the following environment variables:
-    - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
-      - default: `localhost`
-    - `LETS_ENCRYPT_EMAIL`: Your email address (used to receive important emails from Let's Encrypt)
-      - This variable is only configured in `remote` mode. It is used to setup the `./volumes/etc/traefik.yml` file. It is not saved after running the setup script.
-      - default: `letsencrypt@example.com`
-    - `DOCKER_HOST`: The path to your Docker/Podman socket.
-      - This variable is only configured if the environment variable `USE_PODMAN=1` is enabled before running the setup wizard.
-      - default: N/A
-
-##### What Files Does The Setup Wizard Create?
-
-The wizard generates 3 files:
-
-- `./.env` - The local environment (automatically detected by the Compose file)
-- `./volumes/etc/traefik.yml` - Traefik configuration file
-- `./start.sh` - A script that starts the container service
+- Run the `./start.sh up local` script to start the container service with a `local` configuration (no HTTPS).
+  - To enable HTTPS, run `./start up remote`
+- Access your Traefik dashboard at `http://localhost`.
 
 ##### How To Use Podman Instead of Docker?
 
-- Use `pip` (The Python package installer) to install `docker-compose` in order for Podman to work with Compose files.
-- Run `USE_PODMAN=1 ./setup`
+- Run `start.sh local --podman` or
   - To overwrite an existing config, run `USE_PODMAN=1 ./setup --force`
 
 ###### Why Use `docker-compose` Instead of `podman-compose`?
@@ -73,7 +50,7 @@ All commands should be run from the project root directory.
 - Create the `traefix-global-proxy` Docker/Podman network:
   - Docker: `docker network create traefik-global-proxy`
   - Podman: `podman network create traefik-global-proxy`
-- Set up your environment in `./.env`:
+- Configure your environment variables in `./.env`:
   - Supported environment variables:
     - `TRAEFIK_HOST`: The hostname that identifies your Traefik dashboard
       - example: `TRAEFIK_HOST="localhost"`
@@ -81,21 +58,23 @@ All commands should be run from the project root directory.
       - example: `DOCKER_HOST="/var/run/user/1000/podman/podman.sock"`
         - If not set, the `compose.yaml` file will assume the socket is located in `/var/run/docker.sock`
           - This is the standard location of the Docker socket file.
-  - A sample config can be created by running `./templates/dotenv.GENERATOR --default`
-    - The output of this command can be piped to `.env`
-- Set up your Traefik configuration in `./volumes/etc/traefik.yml`
-  - A sample config can be created by running `./templates/traefik.yml.GENERATOR`
-    - You must specify `local` or `remote` as the first positional argument.
-    - The output of this command can be piped to `./volumes/etc/traefik.yml`.
+  - A sample config can be created by running `./dotenv-generate.sh`.
+- Set up your Traefik configuration:
+  - `local` configuration: `./etc/local/traefik.yml`
+  - `remote` configuration: `./etc/remote/traefik.yml`
 - Start the containers with the desired environment:
-  - Docker: `docker compose -f compose.yaml -f compose.config-[local|remote].yaml up`
-  - Podman: `podman-compose -f compose.yaml -f compose.config-[local|remote].yaml up`
+  - Docker:
+    - `local` configuration: `docker compose -f compose.yaml -f compose.config-local.yaml up`
+    - `remote` configuration: `docker compose -f compose.yaml -f compose.config-remote.yaml up`
+  - Podman:
+    - `local` configuration: `docker-compose -H unix:$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.config-local.yaml up`
+    - `remote` configuration: `docker-compose -H unix:$(podman info --format '{{.Host.RemoteSocket.Path}}') -f compose.yaml -f compose.config-remote.yaml up`
 
 ### Differences Between `local` and `remote` Configuration
 
 #### Local
 
-A local environment is an environment which is not exposed directly to the Internet (ie. during development).
+The default local configuration should be used in an environment which is not exposed directly to the Internet (ie. during development).
 
 By default, the `local` configuration:
 
@@ -105,7 +84,7 @@ By default, the `local` configuration:
 
 #### Remote
 
-A remote environment is an environment which is exposed directly to the Internet (ie. in production).
+The remote configuration should be used in an environment which is exposed directly to the Internet (ie. in production).
 
 By default, the `remote` configuration:
 
@@ -115,11 +94,9 @@ By default, the `remote` configuration:
 
 ### Accessing the Traefik Dashboard
 
-By default, the dashboard is accessible from `http://monitor.$TRAEFIK_HOST/`.
+The dashboard is accessible from `http://$TRAEFIK_HOST/`.
 
-- e.g. `http://monitor.localhost/`
-
-The location of the dashboard can be changed by editing the `compose.config-[local|remote].yaml` file for your environment.
+- If you did not modify the default `.env` file, the Traefik dashboard will be accessible at `http://localhost/`
 
 ### Securing the Dashboard
 
@@ -162,7 +139,19 @@ In `remote` mode, the dashboard is secured with the default username `admin` and
 
 #### The Easy Way
 
-If you used the setup wizard, a `./start.sh` script was generated. You can use this script to start the container service.
+Use the `start.sh` script. This script takes up to 3 positional arguments.
+
+The first positional argument must specify the 'docker-compose' command(s) to run.
+
+- Examples: up, down, restart, etc.
+
+The second positional argument must specify the location of the deployment.
+
+- Must be one of: local, remote
+  - local: no HTTPS
+  - remote: uses HTTPS
+
+To use Podman instead of Docker, pass the '--podman' flag as the last positional argument.
 
 #### The Manual Way
 
