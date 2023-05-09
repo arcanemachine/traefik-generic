@@ -100,18 +100,18 @@ The dashboard is accessible from `http://$TRAEFIK_HOST/`.
 
 ### Securing the Dashboard
 
-#### In `local` Mode
+#### Using the `local` Configuration
 
-In `local` mode, the dashboard is unsecured by default.
+With the `local` configuration, the dashboard is unsecured by default.
 
 - To enable basic authentication, uncomment lines 25 and 41 in the `compose.config-local.yaml` file.
   - The default credentials are `admin` and `password`.
     - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
   - Make sure you change the credentials (or disable the dashboard in `./volumes/etc/traefik.yml`) if this service will be accessible from the Internet!
 
-#### In `remote` Mode
+#### Using the `remote` Configuration
 
-In `remote` mode, the dashboard is secured with the default username `admin` and a randomly-generated password.
+With the `remote` configuration, the dashboard is secured with the default username `admin` and a randomly-generated password.
 
 - In order to access the dashboard, you will need to change the password (or disable authentication entirely... which you shouldn't do).
   - The password is hashed. To change the default password, you will need to [generate a new password hash](#set-custom-authentication-credentials).
